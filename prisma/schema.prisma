@@ -1,0 +1,127 @@
+// schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model ContactSubmission {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  message   String
+  type      String   // general, competitor, sponsor
+  company   String?
+  website   String?
+  
+  // Competitor specific fields
+  fitnessLevel        String?
+  competitionInterest String?
+  experience          String?
+  
+  // Sponsor specific fields
+  sponsorshipLevel    String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("contact_submissions")
+}
+
+model AwardVote {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  voterName    String
+  voterEmail   String
+  voterPhone   String
+  nomineeId    String
+  nomineeName  String
+  categoryId   String
+  categoryName String
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@map("award_votes")
+}
+
+model CompetitionRegistration {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  firstName           String
+  lastName            String
+  email               String
+  phone               String
+  dateOfBirth         String
+  competition         String
+  experienceLevel     String
+  emergencyContactName String
+  emergencyContactPhone String
+  termsAccepted       Boolean
+  
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  @@map("competition_registrations")
+}
+
+model User {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  name          String?
+  email         String    @unique
+  password      String
+  role          String    @default("admin")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("users")
+}
+
+model Nomination {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  
+  // Award Information
+  awardTitle String
+  awardId    String
+  
+  // Basic Information
+  fullName     String
+  dateOfBirth  DateTime
+  gender       String
+  contactNumber String
+  email        String
+  cityArea     String
+  organization String?
+  designation  String
+  profilePhotoUrl String?
+  
+  // Professional data stored as JSON
+  professionalData Json?
+  
+  // Social media information stored as JSON
+  socialMediaData Json?
+  
+  // File upload URLs (local paths) stored as JSON
+  uploadedFiles Json?
+  
+  // Status and metadata
+  status      NominationStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  reviewedBy  String?
+  adminNotes  String?
+  
+  // Indexes
+  @@map("nominations")
+}
+
+enum NominationStatus {
+  PENDING
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  SHORTLISTED
+}
